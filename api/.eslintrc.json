@@ -56,10 +56,6 @@
         ],
         "camelcase": "warn",
         "consistent-return": "error",
-        "complexity": [
-            "warn",
-            3
-        ],
         "curly": [
             "error",
             "multi-line",
@@ -79,7 +75,6 @@
         ], // ??
         "max-params": "warn",
         "no-bitwise": "error",
-        "no-console": "warn",
         "no-delete-var": "error",
         "no-else-return": "error",
         "no-eval": "error",

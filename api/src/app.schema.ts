@@ -1,7 +1,7 @@
-import * as yup from 'yup';
+import z from 'zod';
 
-export const schema = yup.object().shape({
-    invoiceNumber: yup.string().required(),
-    workedHours: yup.number().required(),
-    rate: yup.number().required(),
+export const requestSchema = z.object({
+    invoiceNumber: z.string(),
+    workedHours: z.number(),
+    rate: z.number(),
 });

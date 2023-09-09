@@ -1,9 +1,3 @@
-import { Injectable, Logger } from '@nestjs/common';
-
-// import dayjs from 'dayjs';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
-
 import { File, GenerateFilesRequest, OrderParams, ProtocolParams, ZipParams } from './app.types';
 
 const dayjs = require('dayjs');
@@ -15,30 +9,26 @@ libre.convertAsync = require('util').promisify(libre.convert);
 require('dayjs/locale/pl');
 dayjs.locale('pl');
 
-
-@Injectable()
 export class AppService {
-    private readonly logger = new Logger(AppService.name);
-
     async generateB2BFiles({
         invoiceNumber, rate,  workedHours,
     }: GenerateFilesRequest) {
-        this.logger.log('Starting processing protocol file');
+        console.log('Starting processing protocol file');
         const protocol = await this.handleProtocol({ invoiceNumber });
-        this.logger.log('Success: Protocol file processed');
-        this.logger.log('Starting processing order file');
+        console.log('Success: Protocol file processed');
+        console.log('Starting processing order file');
         const order = await this.handleOrder({
             invoiceNumber, rate, workedHours,
         });
-        this.logger.log('Success: Order file processed');
-        this.logger.log('Generating zip file');
+        console.log('Success: Order file processed');
+        console.log('Generating zip file');
         const zip = this.zipFiles({ protocol, order });
-        this.logger.log('Success: Zip saved');
+        console.log('Success: Zip saved');
         return zip;
     }
     
-    private handleProtocol({ invoiceNumber }: ProtocolParams) {
-        const doc = this.readDocument(File.Protocol);
+    private async handleProtocol({ invoiceNumber }: ProtocolParams) {
+        const doc = await this.readDocument(File.Protocol);
 
         doc.render({
             date: dayjs().endOf('month').format('DD.MM.YYYY'),
@@ -53,10 +43,10 @@ export class AppService {
         return this.convertToPdf(buf);
     }
 
-    private handleOrder({ invoiceNumber, rate, workedHours }: OrderParams) {
-        const doc = this.readDocument(File.Order);
+    private async handleOrder({ invoiceNumber, rate, workedHours }: OrderParams) {
+        const doc = await this.readDocument(File.Order);
 
-        this.logger.log('Substitute values');
+        console.log('Substitute values');
 
         doc.render({
             monthEnd: dayjs().endOf('month').format('DD.MM.YYYY'),
@@ -89,14 +79,14 @@ export class AppService {
     }
 
     private convertToPdf(buffer: Buffer) {
-        this.logger.log('Convert to pdf');
+        console.log('Convert to pdf');
 
         return libre.convertAsync(buffer, '.pdf', undefined);
     }
 
-    private readDocument(fileName: File) {
-        this.logger.log('Reading document');
-        const content = readFileSync(resolve(__dirname, `../${fileName}.docx`), 'binary');
+    private async readDocument(fileName: File) {
+        console.log('Reading document');
+        const content = await Bun.file(`./${fileName}.docx`).text();
         const zip = new PizZip(content);
         return new Docxtemplater(zip, {
             paragraphLoop: true,
