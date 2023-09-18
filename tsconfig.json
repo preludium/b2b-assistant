@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "downlevelIteration": true,
+        "jsx": "preserve",
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "types": [
+            "bun-types"
+        ],
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "target": "es2022",
+        "verbatimModuleSyntax": true,
+        "allowJs": true,
+        "resolveJsonModule": true,
+        "moduleDetection": "force",
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "moduleResolution": "Bundler",
+        "module": "ESNext",
+        "noEmit": true,
+        "lib": [
+            "es2022"
+        ],
+    }
+}

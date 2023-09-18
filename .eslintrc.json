@@ -43,7 +43,6 @@
         "no-await-in-loop": "error",
         "no-constant-binary-expression": "error",
         "no-debugger": "error",
-        "no-duplicate-imports": "error",
         "no-obj-calls": "error",
         "no-this-before-super": "error",
         "no-unreachable": "warn",
@@ -90,6 +89,12 @@
         "prefer-numeric-literals": "warn",
         "prefer-object-spread": "error",
         "require-await": "warn",
+        "import/no-duplicates": [
+            "error",
+            {
+                "considerQueryString": true
+            }
+        ],
         "import/order": [
             "error",
             {
