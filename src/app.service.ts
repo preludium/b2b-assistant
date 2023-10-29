@@ -32,6 +32,7 @@ export class AppService {
     ): Promise<File> {
         const doc = await this.readDocument(fileName);
 
+        console.log(`Swapping "${fileName}" template values`);
         doc.render({
             monthEnd: dayjs().endOf('month').format('DD.MM.YYYY'),
             monthStart: dayjs().startOf('month').format('DD.MM.YYYY'),
@@ -71,7 +72,7 @@ export class AppService {
     }
 
     private async readDocument(fileName: string) {
-        console.log(`Reading ${fileName}`);
+        console.log(`Reading "${fileName}"`);
         const content = await Bun.file(`templates/${fileName}.docx`).arrayBuffer();
         const zip = new PizZip(content);
         return new Docxtemplater(zip, {
