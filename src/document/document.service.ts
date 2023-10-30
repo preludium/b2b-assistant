@@ -3,13 +3,14 @@ import Docxtemplater from 'docxtemplater';
 import { convert as libreConvert } from 'libreoffice-convert';
 import PizZip from 'pizzip';
 
-import type { File, GenerateFilesRequest } from './app.types';
+import type { GenerateFilesRequest } from './document.types';
+import type { File } from '../types';
 
 require('dayjs/locale/pl');
 dayjs.locale('pl');
 
-export class AppService {
-    async generateB2BFiles(values: Required<GenerateFilesRequest>) {
+export class DocumentService {
+    async generateDocuments(values: Required<GenerateFilesRequest>) {
         const filesNames = Bun.env.TEMPLATES_NAMES?.split(',');
         if (!filesNames) {
             throw new Error('Provide files names environment variables');
@@ -19,20 +20,18 @@ export class AppService {
             filesNames.map(fileName => this.substituteTemplates(fileName.trim(), values))
         );
 
-        console.log('Zipping files');
-        const zip = this.zipFiles(files);
+        console.log(`[${DocumentService.name}] Finished`);
 
-        Bun.write('result.zip', zip);
-        console.log('Success');
+        return files;
     }
     
     private async substituteTemplates(
-        fileName: string,
+        filename: string,
         { rate, workedHours }: Required<GenerateFilesRequest>,
     ): Promise<File> {
-        const doc = await this.readDocument(fileName);
+        const doc = await this.readDocument(filename);
 
-        console.log(`Swapping "${fileName}" template values`);
+        console.log(`[${DocumentService.name}] Swapping "${filename}" template values`);
         doc.render({
             monthEnd: dayjs().endOf('month').format('DD.MM.YYYY'),
             monthStart: dayjs().startOf('month').format('DD.MM.YYYY'),
@@ -49,22 +48,9 @@ export class AppService {
         });
 
         return {
-            name: fileName,
+            name: filename.replace('_template', ''),
             content: await this.convertToPdf(buf),
         };
-    }
-
-    private zipFiles(files: File[]) {
-        const zip = new PizZip();
-
-        files.forEach(({ name, content }) => {
-            zip.file(`${name.replace('_template', '')}.pdf`, content);
-        });
-        
-        return zip.generate({
-            type: 'nodebuffer',
-            platform: process.platform,
-        });
     }
 
     private convertToPdf(buffer: Buffer) {
@@ -72,7 +58,7 @@ export class AppService {
     }
 
     private async readDocument(fileName: string) {
-        console.log(`Reading "${fileName}"`);
+        console.log(`[${DocumentService.name}] Reading "${fileName}"`);
         const content = await Bun.file(`templates/${fileName}.docx`).arrayBuffer();
         const zip = new PizZip(content);
         return new Docxtemplater(zip, {

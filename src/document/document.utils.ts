@@ -1,11 +1,11 @@
 import z from 'zod';
 
-export const requestSchema = z.object({
+export const argumentsSchema = z.object({
     workedHours: z.preprocess(Number, z.number()).optional(),
     rate: z.preprocess(Number, z.number()).optional(),
 });
 
-type Argument = keyof z.infer<typeof requestSchema>;
+type Argument = keyof z.infer<typeof argumentsSchema>;
 
 const flag: Record<Argument, string[]>= {
     workedHours: ['-h', '--workedHours'],
@@ -24,7 +24,7 @@ export const checkArgument = (flagKey: Argument) => {
                     .reject(new Error(`Multiple arguments for option ${flag[flagKey].join(', ')}`));
             }
 
-            const parseResult = requestSchema.safeParse({ [flagKey]: Bun.argv[argumentIndex + 1]});
+            const parseResult = argumentsSchema.safeParse({ [flagKey]: Bun.argv[argumentIndex + 1]});
             if (!parseResult.success) {
                 const issueMessage = parseResult.error.issues.map(issue => issue.message).at(0);
                 return Promise.reject(new Error(`Wrong "${flagKey}" option value: ${issueMessage}`));
@@ -37,5 +37,5 @@ export const checkArgument = (flagKey: Argument) => {
         return Promise.reject(new Error(`Provide required option ${flag[flagKey].join(', ')}`));
     }
 
-    return Promise.resolve(requestSchema.parse({ [flagKey]: flagValue })[flagKey]!);
+    return Promise.resolve(argumentsSchema.parse({ [flagKey]: flagValue })[flagKey]!);
 };
